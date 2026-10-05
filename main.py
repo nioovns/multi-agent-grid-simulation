@@ -23,17 +23,23 @@ GRID_SIZE = 15
 WIDTH, HEIGHT = CELL_SIZE * GRID_SIZE, CELL_SIZE * GRID_SIZE + 50
 FPS = 5
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (100, 100, 100)
-RED = (200, 50, 50)
+DARK_BG = (25, 28, 34)
+GRID_COLOR = (65, 70, 80)
+PANEL_BG = (30, 34, 42)
+PANEL_BORDER = (70, 75, 85)
+TEXT = (235, 235, 235)
+MUTED_TEXT = (170, 175, 185)
+ACCENT = (100, 150, 255)
+SUCCESS = (90, 200, 120)
+DANGER = (220, 90, 90)
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("C(aXORu)ttie Tournament!")
 clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 30)
-big_font = pygame.font.SysFont(None, 50)
+small_font = pygame.font.SysFont("arial", 20)
+font = pygame.font.SysFont("arial", 22)
+big_font = pygame.font.SysFont("arial", 42, bold=True)
 
 mice_img = pygame.transform.scale(pygame.image.load("assets/mice.png"), (50, 50))
 rock_img = pygame.transform.scale(pygame.image.load("assets/rock.png"), (50, 50))
@@ -98,25 +104,150 @@ def generate_map(start1, start2):
             return mice, rocks, beds
 
 def draw_game(agent1, agent2, mice, rocks, beds, turn):
-    screen.blit(background, (0, 0))
+    screen.fill(DARK_BG)
+
+    # Game area
+    game_rect = pygame.Rect(
+        0,
+        0,
+        GRID_SIZE * CELL_SIZE,
+        GRID_SIZE * CELL_SIZE
+    )
+
+    screen.blit(background, game_rect)
+
+    # Grid
     for x in range(GRID_SIZE):
         for y in range(GRID_SIZE):
-            rect = pygame.Rect(x*CELL_SIZE, y*CELL_SIZE, CELL_SIZE, CELL_SIZE)
-            pygame.draw.rect(screen, BLACK, rect, 1)
-            if (x, y) in rocks:
-                screen.blit(rock_img, rect)
-            elif (x, y) in beds:
-                screen.blit(bed_img, rect)
-            elif (x, y) in mice:
-                screen.blit(mice_img, rect)
-    screen.blit(grayCat, (agent1.position[0]*CELL_SIZE+5, agent1.position[1]*CELL_SIZE+5))
-    screen.blit(orangeCat, (agent2.position[0]*CELL_SIZE+5, agent2.position[1]*CELL_SIZE+5))
+            rect = pygame.Rect(
+                x * CELL_SIZE,
+                y * CELL_SIZE,
+                CELL_SIZE,
+                CELL_SIZE
+            )
 
-    info = f"{agent1.name}: {agent1.score} | {agent2.name}: {agent2.score} | turn: {'1' if turn == 0 else '2'}"
-    text = font.render(info, True, BLACK)
-    screen.blit(text, (10, HEIGHT - 40))
+            pygame.draw.rect(
+                screen,
+                GRID_COLOR,
+                rect,
+                1
+            )
+
+    # Objects
+    for position in rocks:
+        rect = pygame.Rect(
+            position[0] * CELL_SIZE,
+            position[1] * CELL_SIZE,
+            CELL_SIZE,
+            CELL_SIZE
+        )
+        screen.blit(rock_img, rect)
+
+    for position in beds:
+        rect = pygame.Rect(
+            position[0] * CELL_SIZE,
+            position[1] * CELL_SIZE,
+            CELL_SIZE,
+            CELL_SIZE
+        )
+        screen.blit(bed_img, rect)
+
+    for position in mice:
+        rect = pygame.Rect(
+            position[0] * CELL_SIZE,
+            position[1] * CELL_SIZE,
+            CELL_SIZE,
+            CELL_SIZE
+        )
+        screen.blit(mice_img, rect)
+
+    # Agents
+    agent1_rect = pygame.Rect(
+        agent1.position[0] * CELL_SIZE + 2,
+        agent1.position[1] * CELL_SIZE + 2,
+        36,
+        36
+    )
+
+    agent2_rect = pygame.Rect(
+        agent2.position[0] * CELL_SIZE + 7,
+        agent2.position[1] * CELL_SIZE + 7,
+        36,
+        36
+    )
+
+    agent1_image = pygame.transform.smoothscale(
+        grayCat,
+        (48, 48)
+    )
+
+    agent2_image = pygame.transform.smoothscale(
+        orangeCat,
+        (48, 48)
+    )
+
+    screen.blit(agent1_image, agent1_rect)
+    screen.blit(agent2_image, agent2_rect)
+
+    # Bottom panel
+    panel_y = GRID_SIZE * CELL_SIZE
+    pygame.draw.rect(
+        screen,
+        PANEL_BG,
+        (0, panel_y, WIDTH, 50)
+    )
+
+    pygame.draw.line(
+        screen,
+        PANEL_BORDER,
+        (0, panel_y),
+        (WIDTH, panel_y),
+        2
+    )
+
+    # Agent 1 score
+    agent1_text = font.render(
+        f"{agent1.name}: {agent1.score}",
+        True,
+        TEXT
+    )
+
+    screen.blit(
+        agent1_text,
+        (15, panel_y + 10)
+    )
+
+    # Agent 2 score
+    agent2_text = font.render(
+        f"{agent2.name}: {agent2.score}",
+        True,
+        TEXT
+    )
+
+    screen.blit(
+        agent2_text,
+        (WIDTH // 2 + 10, panel_y + 10)
+    )
+
+    # Current turn
+    current_agent = agent1 if turn == 0 else agent2
+
+    turn_text = small_font.render(
+        f"Turn: {current_agent.name}",
+        True,
+        MUTED_TEXT
+    )
+
+    screen.blit(
+        turn_text,
+        (
+            WIDTH - turn_text.get_width() - 15,
+            panel_y + 13
+        )
+    )
+
     pygame.display.flip()
-
+    
 
 #game starts!
 def match(agent1, agent2, swap_positions=False):
@@ -297,35 +428,133 @@ def show_results(wins, scores, final_winner):
         reverse=True
     )
 
-    screen.blit(background, (0, 0))
+    screen.fill(DARK_BG)
 
-    title = big_font.render("Tournament Winner", True, BLACK)
-    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 20))
+    # Header
+    title = big_font.render(
+        "TOURNAMENT RESULTS",
+        True,
+        TEXT
+    )
+
+    screen.blit(
+        title,
+        (
+            WIDTH // 2 - title.get_width() // 2,
+            30
+        )
+    )
+
+    winner_box = pygame.Rect(
+        75,
+        95,
+        WIDTH - 150,
+        75
+    )
+
+    pygame.draw.rect(
+        screen,
+        PANEL_BG,
+        winner_box,
+        border_radius=12
+    )
 
     winner_text = font.render(
         f"Winner: {final_winner.__name__}",
         True,
-        RED
+        SUCCESS
     )
+
     screen.blit(
         winner_text,
-        (WIDTH // 2 - winner_text.get_width() // 2, 70)
+        (
+            WIDTH // 2 - winner_text.get_width() // 2,
+            118
+        )
     )
 
-    title2 = big_font.render("Final Ranking", True, BLACK)
-    screen.blit(title2, (WIDTH // 2 - title2.get_width() // 2, 130))
+    # Ranking header
+    ranking_title = font.render(
+        "Final Ranking",
+        True,
+        PANEL_BG
+    )
 
-    y = 180
+    screen.blit(
+        ranking_title,
+        (60, 200)
+    )
+
+    # Ranking cards
+    y = 245
 
     for i, name in enumerate(ranking, start=1):
-        text = font.render(
-            f"{i}. {name} - Wins: {wins[name]} | Score: {scores[name]}",
-            True,
-            BLACK
+        card = pygame.Rect(
+            50,
+            y,
+            WIDTH - 100,
+            55
         )
 
-        screen.blit(text, (50, y))
-        y += 30
+        pygame.draw.rect(
+            screen,
+            PANEL_BG,
+            card,
+            border_radius=8
+        )
+
+        rank_text = font.render(
+            f"{i}.",
+            True,
+            ACCENT
+        )
+
+        name_text = font.render(
+            name,
+            True,
+            TEXT
+        )
+
+        stats_text = small_font.render(
+            f"Wins: {wins[name]}    Total Score: {scores[name]}",
+            True,
+            MUTED_TEXT
+        )
+
+        screen.blit(
+            rank_text,
+            (65, y + 13)
+        )
+
+        screen.blit(
+            name_text,
+            (105, y + 13)
+        )
+
+        screen.blit(
+            stats_text,
+            (
+                WIDTH - stats_text.get_width() - 65,
+                y + 16
+            )
+        )
+
+        y += 65
+
+    # Footer
+    footer = small_font.render(
+        "Press any key to exit",
+        True,
+        (180, 180, 180)
+    )
+
+    screen.blit(
+        footer,
+        (
+            WIDTH // 2 - footer.get_width() // 2,
+            HEIGHT - 30
+        )
+    )
 
     pygame.display.flip()
 
@@ -343,9 +572,15 @@ def show_results(wins, scores, final_winner):
 
     while waiting:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN:
+            if event.type == pygame.QUIT:
                 waiting = False
 
+            elif event.type == pygame.KEYDOWN:
+                waiting = False
+
+    pygame.quit()
+    
+    
 if __name__ == "__main__":
     agents = load_agents()
     final_winner, wins, scores = tournament(agents)
