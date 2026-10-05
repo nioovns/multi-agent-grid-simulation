@@ -5,8 +5,8 @@ GRID_SIZE = 15
 
 # this agent moves randomly
 
-class new(Agent):
-    name = "new"
+class RandomAgent(Agent):
+    name = "random"
     def __init__(self):
         super().__init__(self.name)
         

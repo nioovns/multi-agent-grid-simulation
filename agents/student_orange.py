@@ -6,8 +6,8 @@ GRID_SIZE = 15
 
 # this agent move with bfs algorithm
 
-class orange(Agent):
-    name = "orange"
+class BfsAgent(Agent):
+    name = "BFS"
     
     def __init__(self):
 

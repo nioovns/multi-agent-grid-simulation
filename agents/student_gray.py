@@ -5,8 +5,8 @@ GRID_SIZE = 15
 
 # this agent move with A* algorithm
 
-class gray(Agent):
-    name = "gray"
+class AstarAgent(Agent):
+    name = "Astar"
     
     def __init__(self):
         super().__init__(self.name)
