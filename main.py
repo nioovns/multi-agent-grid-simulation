@@ -119,9 +119,17 @@ def draw_game(agent1, agent2, mice, rocks, beds, turn):
 
 
 #game starts!
-def match(agent1, agent2):
-    agent1.start_pos = (0, 0)
-    agent2.start_pos = (GRID_SIZE - 1, GRID_SIZE - 1)
+def match(agent1, agent2, swap_positions=False):
+    
+    if swap_positions:
+        agent1.start_pos = (GRID_SIZE - 1, GRID_SIZE - 1)
+        agent2.start_pos = (0, 0)
+        
+    else:
+        agent1.start_pos = (0, 0)
+        agent2.start_pos = (GRID_SIZE - 1, GRID_SIZE - 1)
+        
+        
     agent1.position = agent1.start_pos
     agent2.position = agent2.start_pos
     agent1.skip = 0
@@ -231,8 +239,12 @@ def tournament(agent_classes):
                 agent1.name = class1.__name__
                 agent2.name = class2.__name__
 
-                winner, reason = match(agent1, agent2)
-
+                winner, reason = match(
+                    agent1,
+                    agent2,
+                    swap_positions=(game % 2 == 1)
+                )
+                
                 total_scores[agent1.name] += agent1.score
                 total_scores[agent2.name] += agent2.score
                 if winner is agent1:
