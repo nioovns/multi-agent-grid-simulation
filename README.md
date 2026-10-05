@@ -4,6 +4,14 @@ A Python-based multi-agent simulation where autonomous agents compete in a grid 
 
 The project compares different decision-making strategies under **partial and probabilistic sensing** using a tournament-based evaluation system.
 
+
+## Demo
+
+![Game Screenshot](assets/gameplay.png)
+
+![Tournament Results](assets/tournament-results.png)
+
+
 ## Features
 
 * Multi-agent grid-based simulation
