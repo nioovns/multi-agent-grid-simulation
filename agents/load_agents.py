@@ -9,7 +9,10 @@ def load_agents():
     agents_directory = os.path.dirname(__file__)
 
     for file in os.listdir(agents_directory):
-        if not file.startswith("student_") or not file.endswith(".py"):
+        if file in {"agent.py", "load_agents.py", "__init__.py"}:
+            continue
+
+        if not file.endswith(".py"):
             continue
 
         module_name = f"agents.{file[:-3]}"
