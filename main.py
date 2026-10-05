@@ -35,12 +35,12 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 30)
 big_font = pygame.font.SysFont(None, 50)
 
-mice_img = pygame.transform.scale(pygame.image.load("mice.png"), (50, 50))
-rock_img = pygame.transform.scale(pygame.image.load("rock.png"), (50, 50))
-bed_img = pygame.transform.scale(pygame.image.load("catBed.png"), (50, 50))
-background = pygame.transform.scale(pygame.image.load("grasss.png"), (750,800))
-orangeCat = pygame.transform.scale(pygame.image.load("cat1.png"), (52,52))
-grayCat = pygame.transform.scale(pygame.image.load("cat2.png"), (52,52))
+mice_img = pygame.transform.scale(pygame.image.load("assets/mice.png"), (50, 50))
+rock_img = pygame.transform.scale(pygame.image.load("assets/rock.png"), (50, 50))
+bed_img = pygame.transform.scale(pygame.image.load("assets/catBed.png"), (50, 50))
+background = pygame.transform.scale(pygame.image.load("assets/grasss.png"), (750,800))
+orangeCat = pygame.transform.scale(pygame.image.load("assets/cat1.png"), (52,52))
+grayCat = pygame.transform.scale(pygame.image.load("assets/cat2.png"), (52,52))
 
 #to check if every agent got a way to run away of rocks!
 def bfs(start, rocks):
@@ -117,79 +117,15 @@ def draw_game(agent1, agent2, mice, rocks, beds, turn):
     screen.blit(text, (10, HEIGHT - 40))
     pygame.display.flip()
 
-# #game starts!
-# def match(agent1, agent2):
-#     agent1.start_pos = (0, 0)
-#     agent2.start_pos = (GRID_SIZE-1, GRID_SIZE-1)
-#     agent1.position = agent1.start_pos 
-#     agent2.position = agent2.start_pos
-#     agent1.skip = 0
-#     agent2.skip = 0
-#     agent1.score = 0
-#     agent2.score = 0
 
-#     mice, rocks, beds = generate_map(agent1.start_pos, agent2.start_pos)
-#     turn = 0
-#     counter = 0
-#     while True:
-#         clock.tick(FPS)
-#         draw_game(agent1, agent2, mice, rocks, beds, turn)
-
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 pygame.quit(); exit()
-
-#         current = agent1 if turn == 0 else agent2
-#         other = agent2 if turn == 0 else agent1
-
-#         if current.skip > 0:
-#             current.skip -= 1
-#         else:
-#             sensor_radius = 5
-#             sensor_probability = 0.3
-#             detected_mice = get_detected_objects(current.position, mice, sensor_radius, sensor_probability) 
-#             detected_rocks = get_detected_objects(current.position, rocks, sensor_radius, sensor_probability) 
-#             detected_beds = get_detected_objects(current.position, beds, sensor_radius, sensor_probability)   
-#             current.move(detected_mice, detected_rocks, detected_beds)
-
-#             # if the agent hit the rock, it dies
-#             if current.position in rocks:
-#                 return other
-
-#             # if the agent hit the bed, sleep for 2 turns
-#             if current.position in beds:
-#                 current.skip = 2
-
-#             # if the agent hit the mouce, score + 1
-#             if current.position in mice:
-#                 current.score += 1
-#                 mice.remove(current.position)
-
-#         #if the agent score reaches 5 (or more), it wins
-#         if current.score >= 5:
-#             return current
-        
-#         turn = 1 - turn
-#         counter += 1 
-        
-#         # if number of turns reaches 60+
-#         if counter >= MAX_TURNS:
-#             if current.score > other.score:
-#                 return current
-#             elif current.score < other.score:
-#                 return other
-#             else:
-#                 return None
+#game starts!
 def match(agent1, agent2):
     agent1.start_pos = (0, 0)
     agent2.start_pos = (GRID_SIZE - 1, GRID_SIZE - 1)
-
     agent1.position = agent1.start_pos
     agent2.position = agent2.start_pos
-
     agent1.skip = 0
     agent2.skip = 0
-
     agent1.score = 0
     agent2.score = 0
 
@@ -200,7 +136,6 @@ def match(agent1, agent2):
 
     turn = 0
     counter = 0
-
     while True:
         clock.tick(FPS)
         draw_game(agent1, agent2, mice, rocks, beds, turn)
@@ -215,7 +150,6 @@ def match(agent1, agent2):
 
         if current.skip > 0:
             current.skip -= 1
-
         else:
             sensor_radius = 5
             sensor_probability = 0.3
@@ -277,36 +211,7 @@ def match(agent1, agent2):
 
             else:
                 return None, "Maximum turns reached - draw"
-#agents enter the game two by two.
-# #if the number was odd, one goes to the next stage directly.
-# def tournament(agent_classes):
-#     current_round = agent_classes
-#     results = {}
-#     match_history = []
-    
-#     while len(current_round) > 1:
-#         next_round = []
-        
-#         if len(current_round) % 2 == 1: #odd 
-#             next_round.append(current_round[-1])
-#             current_round = current_round[:-1]
-            
-#         for i in range(0, len(current_round), 2):
-#             agent1 = current_round[i]()
-#             agent2 = current_round[i+1]()
-#             agent1.name = current_round[i].__name__
-#             agent2.name = current_round[i+1].__name__
-#             winner = match(agent1, agent2)
-#             results[agent1.name] = results.get(agent1.name, 0) + agent1.score
-#             results[agent2.name] = results.get(agent2.name, 0) + agent2.score
-#             next_round.append(type(winner))
 
-#         current_round = next_round
-        
-#     print("results: \n")
-#     print (results)
-#     final_winner = current_round[0]
-#     return final_winner, results
 
 def tournament(agent_classes):
     wins = {cls.__name__: 0 for cls in agent_classes}
@@ -355,42 +260,6 @@ def tournament(agent_classes):
                         f"({agent1.score}-{agent2.score}) "
                         f"- {reason}"
                     )
-                # if winner is agent1:
-                #     wins[agent1.name] += 1
-                #     print(
-                #         f"Game {game + 1}: "
-                #         f"{agent1.name} won "
-                #         f"({agent1.score}-{agent2.score})"
-                #     )
-
-                # elif winner is agent2:
-                #     wins[agent2.name] += 1
-                #     print(
-                #         f"Game {game + 1}: "
-                #         f"{agent2.name} won "
-                #         f"({agent2.score}-{agent1.score})"
-                #     )
-
-                # else:
-                #     print(
-                #         f"Game {game + 1}: "
-                #         f"Draw ({agent1.score}-{agent2.score})"
-                #     )
-                # if winner is agent1:
-                #     wins[agent1.name] += 1
-                #     print(
-                #         f"Game {game + 1}: "
-                #         f"{agent1.name} won "
-                #         f"({agent1.score}-{agent2.score})"
-                #     )
-
-                # else:
-                #     wins[agent2.name] += 1
-                #     print(
-                #         f"Game {game + 1}: "
-                #         f"{agent2.name} won "
-                #         f"({agent2.score}-{agent1.score})"
-                #     )
 
     ranking = sorted(
         agent_classes,
@@ -405,36 +274,6 @@ def tournament(agent_classes):
 
     return final_winner, wins, total_scores
 
-# def show_results(results, final_winner):
-#     sorted_results = sorted(results.items(), key=lambda x: x[1], reverse=True)
-#     screen.blit(background, (0, 0))
-
-#     title = big_font.render("Tournament Winner", True, BLACK)
-#     screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 20))
-
-#     winner_text = font.render(f"Winner: {final_winner.__name__}", True, RED)
-#     screen.blit(winner_text, (WIDTH // 2 - winner_text.get_width() // 2, 70))
-
-#     title2 = big_font.render("Final Scores", True, BLACK)
-#     screen.blit(title2, (WIDTH // 2 - title2.get_width() // 2, 130))
-
-#     y = 180
-#     for i, (name, score) in enumerate(sorted_results):
-#         text = font.render(f"{i+1}. {name}: {score}", True, BLACK)
-#         screen.blit(text, (50, y))
-#         y += 30
-
-#     pygame.display.flip()
-#     print("\n===== Tournament Results =====")
-#     print(f"Winner: {final_winner.__name__}")
-
-#     for i, (name, score) in enumerate(sorted_results, start=1):
-#         print(f"{i}. {name}: {score}")
-#     waiting = True
-#     while waiting:
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN:
-#                 waiting = False
 
 def show_results(wins, scores, final_winner):
     ranking = sorted(
